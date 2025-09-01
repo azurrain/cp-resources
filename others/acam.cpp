@@ -25,8 +25,6 @@ struct AC {
         for (int i = 0; i < int(s.size()); ++i) t[i] = ord(s[i]);
         return insert(t);
     }
-```
-```cpp
     void build() const {
         queue<int> q;
         for (int k = 0; k < SIGMA; ++k) {

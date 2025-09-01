@@ -138,7 +138,8 @@ class Expander:
 
             # TODO
             if not self.expandns:
-                if line == "using namespace cplib;":
+                t = re.compile(r"\s*using\s*namespace\s*cplib;\s*")
+                if t.match(line):
                     continue
                 line = line.replace("cplib::", "")
             self.result.append(line)
@@ -157,7 +158,7 @@ if __name__ == "__main__":
     parser.add_argument("--lib", help="Path to cplib")
     parser.add_argument("-o", "--output", help="Output File")
     parser.add_argument("-c", "--console", action="store_true", help="Print to Console")
-    parser.add_argument("-g", action="store_true", help="Expand with out namespace")
+    parser.add_argument("-n", "--namesp", action="store_true", help="Expand namespace")
     args = parser.parse_args()
 
     libpaths = []
@@ -165,7 +166,7 @@ if __name__ == "__main__":
         libpaths.append(Path(args.lib))
     libpaths.append(Path.cwd())
 
-    expander = Expander(libpaths, not bool(args.g))
+    expander = Expander(libpaths, bool(args.namesp))
 
     with open(args.source) as f:
         source = f.read()
