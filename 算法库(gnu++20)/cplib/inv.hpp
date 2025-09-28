@@ -29,15 +29,15 @@ constexpr pair<T, T> inv_gcd(T x, T m) {
         y = -y;
     }
     if (v < 0) {
-        v += abs(m) / y;
+        v += (m < 0 ? -m : m) / y;
     }
     return make_pair(v, y);
 }
 
 template<unsigned_integral T>
 constexpr pair<T, T> inv_gcd(T x, T m) {
-    using U = make_signed_t<T>;
-    return inv_gcd(U(x), U(m));
+    auto [a, g] = inv_gcd(ll(x), ll(m));
+    return make_pair(T(a), T(g));
 }
 
 template<integral T>

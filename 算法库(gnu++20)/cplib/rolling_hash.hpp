@@ -23,7 +23,7 @@ struct rolling_hash {
         }
         return pf.back();
     }
-    template<ranges::range Cont>
+    template<typename Cont>
     ull build(const Cont &s) {
         pf.resize(1);
         pf.reserve(s.size() + 1);

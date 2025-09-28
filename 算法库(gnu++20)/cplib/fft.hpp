@@ -1,56 +1,57 @@
 #ifndef CPLIB_FFT_HPP
 #define CPLIB_FFT_HPP 1
 
-#include <bits/stdc++.h>
-
-using namespace std;
-
-using uint = unsigned;
-using ll = long long;
-using ull = unsigned long long;
-using ld = long double;
+#include "cplib/bit.hpp"
 
 namespace cplib {
 
 template<floating_point T>
-void fft(vector<complex<T>> &a, bool inv) {
-    static const T pi = acos(T(-1));
-    static int m = 0;
-    static vector<int> rev = {};
-    int n = int(a.size());
-    assert((n & (n - 1)) == 0);
-    if (m < n) {
-        m = n;
-        rev.resize(m);
-        for (int i = 0; i < m; ++i) {
-            rev[i] = (rev[i >> 1] >> 1) + (i & 1) * (m >> 1);
+struct fft_info {
+    static constexpr T PI = numbers::pi_v<T>;
+    int k;
+    vector<int> rev;
+    vector<complex<T>> roots;
+    fft_info() : k(1), rev{0, 1}, roots{0, 1} {
+    }
+    int ensure(int nk) {
+        if (k >= nk) {
+            return k - nk;
         }
+        rev.resize(1 << nk);
+        roots.resize(1 << nk);
+        for (int i = 0; i < (1 << nk); ++i) {
+            rev[i] = (rev[i >> 1] >> 1) | ((i & 1) << (nk - 1));
+        }
+        for (; k < nk; ++k) {
+            T ang = PI / (1 << k);
+            complex<T> w(cos(ang), sin(-ang));
+            for (int i = (1 << (k - 1)); i < (1 << k); ++i) {
+                roots[2 * i] = roots[i];
+                roots[2 * i + 1] = roots[i] * w;
+            }
+        }
+        return 0;
     }
-    int shift = 0;
-    while ((n << shift) < m) {
-        ++shift;
-    }
+};
+
+template<floating_point T>
+void fft(vector<complex<T>> &a) {
+    int n = int(a.size());
+    assert(ispow2(n));
+    static fft_info<T> info = {};
+    int ofs = info.ensure(ctz(n));
     for (int i = 0; i < n; ++i) {
-        if (i < (rev[i] >> shift)) {
-            swap(a[i], a[rev[i] >> shift]);
+        if (i < (info.rev[i] >> ofs)) {
+            swap(a[i], a[info.rev[i] >> ofs]);
         }
     }
     for (int k = 1; k < n; k <<= 1) {
-        complex<T> wn(cos(pi / k), sin((inv ? 1 : -1) * pi / k));
-        for (int i = 0; i < n; i += k << 1) {
-            complex<T> w(1, 0);
+        for (int i = 0; i < n; i += (k << 1)) {
             for (int j = i; j < i + k; ++j) {
-                complex<T> g = a[j];
-                complex<T> h = w * a[j + k];
-                a[j] = g + h;
-                a[j + k] = g - h;
-                w *= wn;
+                complex<T> t = info.roots[k + j - i] * a[j + k];
+                a[j + k] = a[j] - t;
+                a[j] += t;
             }
-        }
-    }
-    if (inv) {
-        for (complex<T> &x : a) {
-            x /= n;
         }
     }
 }
@@ -60,23 +61,25 @@ vector<T> convolve(const vector<T> &a, const vector<T> &b) {
     assert(!a.empty());
     assert(!b.empty());
     int n = int(a.size() + b.size()) - 1;
-    int m = bit_ceil(uint(n));
-    vector<complex<T>> ca(m);
-    vector<complex<T>> cb(m);
-    copy(a.begin(), a.end(), ca.begin());
-    copy(b.begin(), b.end(), cb.begin());
-    fft(ca, false);
-    fft(cb, false);
-    vector<complex<T>> cc(m);
+    int m = ceil2(n);
+    vector<complex<T>> c(m);
     for (int i = 0; i < m; ++i) {
-        cc[i] = ca[i] * cb[i];
+        T x = (i < int(a.size()) ? a[i] : 0);
+        T y = (i < int(b.size()) ? b[i] : 0);
+        c[i] = complex<T>(x, y);
     }
-    fft(cc, true);
-    vector<T> c(n);
+    fft(c);
+    const T inv_m = T(1) / m;
+    for (int i = 0; i < m; ++i) {
+        c[i] *= c[i] * inv_m;
+    }
+    reverse(c.begin() + 1, c.end());
+    fft(c);
+    vector<T> res(n);
     for (int i = 0; i < n; ++i) {
-        c[i] = cc[i].real();
+        res[i] = c[i].imag() * 0.5;
     }
-    return c;
+    return res;
 }
 
 template<integral T>

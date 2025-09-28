@@ -25,8 +25,20 @@ constexpr int ilog2(T x) {
     return bit_width(make_unsigned_t<T>(x)) - 1;
 }
 template<integral T>
+constexpr bool ispow2(T x) {
+    return has_single_bit(make_unsigned_t<T>(x));
+}
+template<integral T>
 constexpr int popcnt(T x) {
     return popcount(make_unsigned_t<T>(x));
+}
+template<integral T>
+constexpr int clz(T x) {
+    return countl_zero(make_unsigned_t<T>(x));
+}
+template<integral T>
+constexpr int ctz(T x) {
+    return countr_zero(make_unsigned_t<T>(x));
 }
 
 }  // namespace cplib

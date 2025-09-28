@@ -92,7 +92,8 @@ struct hld {
         }
         return (dep[u] < dep[v] ? u : v);
     }
-    template<typename F> requires (is_convertible_v<F, function<void(int, int)>>)
+    template<typename F>
+        requires (is_convertible_v<F, function<void(int, int)>>)
     void apply(int u, int v, const F &f, bool includes_lca = true) const {
         assert(0 <= u && u < n);
         assert(0 <= v && v < n);

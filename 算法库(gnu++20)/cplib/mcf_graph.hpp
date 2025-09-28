@@ -5,7 +5,8 @@
 
 namespace cplib {
 
-template<typename Cap, typename Cost> requires (is_signed_v<Cost>)
+template<typename Cap, typename Cost>
+    requires (is_signed_v<Cost>)
 struct mcf_graph {
     struct sedge {
         int to;

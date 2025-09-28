@@ -111,6 +111,13 @@ struct segtree {
     }
 };
 
+// struct info {
+//     ...
+//     friend info operator+(const info &lv, const info &rv) {
+//         ...
+//     }
+// };
+
 }  // namespace cplib
 
 #endif  // CPLIB_SEGTREE_HPP

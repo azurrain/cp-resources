@@ -194,6 +194,23 @@ struct lazy_segtree {
     }
 };
 
+// struct lazy {
+//     ...
+//     void apply(const lazy &o) {
+//         ...
+//     }
+// };
+
+// struct info {
+//     ...
+//     void apply(const lazy &lz) {
+//         ...
+//     }
+//     friend info operator+(const info &lv, const info &rv) {
+//         ...
+//     }
+// };
+
 }  // namespace cplib
 
 #endif  // CPLIB_LAZY_SEGTREE_HPP

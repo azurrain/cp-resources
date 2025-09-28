@@ -2,49 +2,51 @@
 #define CPLIB_DYNAMIC_MODINT_HPP 1
 
 #include "cplib/i128.hpp"
+#include "safe_mod.hpp"
 #include "cplib/inv.hpp"
 #include "cplib/modint_base.hpp"
 
 namespace cplib {
 
 struct barrett {
+    explicit barrett(int m) : m(uint(m)), im(UINT64_MAX / m + 1) {
+    }
+    int getm() const {
+        return int(m);
+    }
+    int mul(int a, int b) const {
+        ull c = ull(a) * ull(b);
+        c -= ull((u128(c) * im) >> 64) * m;
+        if (c >= m) {
+            c += m;
+        }
+        return int(c);
+    }
+
+private:
     uint m;
     u128 im;
-    explicit barrett(uint m) : m(m), im(UINT64_MAX / m + 1) {
-    }
-    uint getm() const {
-        return m;
-    }
-    uint mul(ull a, ull b) const {
-        a *= b;
-        a -= ull((u128(a) * im) >> 64) * m;
-        if (a >= m) {
-            a += m;
-        }
-        return uint(a);
-    }
 };
 
 template<int ID>
 struct dynamic_modint : public modint_base {
     using mint = dynamic_modint;
-    using value_type = uint;
-    static uint getm() {
+    static int getm() {
         return bt.getm();
     }
-    static void setm(uint m) {
+    static void setm(int m) {
         assert(m > 0);
         bt = barrett(m);
     }
     constexpr dynamic_modint() : v(0) {
     }
     template<signed_integral T>
-    dynamic_modint(T x) : v(uint(x % ll(getm()) + (x < 0 ? getm() : 0))) {
+    dynamic_modint(T x) : v(safe_mod(x, getm())) {
     }
     template<unsigned_integral T>
-    dynamic_modint(T x) : v(uint(x % getm())) {
+    dynamic_modint(T x) : v(int(x % getm())) {
     }
-    dynamic_modint(bool x) : v(uint(x) % getm()) {
+    dynamic_modint(bool x) : v(int(x) % getm()) {
     }
     template<typename T>
     explicit constexpr operator T() const {
@@ -108,7 +110,7 @@ struct dynamic_modint : public modint_base {
     }
     friend istream &operator>>(istream &is, mint &x) {
         is >> x.v;
-        x = mint(x.v);
+        x.v = safe_mod(x.v, getm());
         return is;
     }
     friend ostream &operator<<(ostream &os, mint x) {
@@ -117,10 +119,10 @@ struct dynamic_modint : public modint_base {
 
 private:
     static barrett bt;
-    uint v;
+    int v;
 };
 template<int ID>
-barrett dynamic_modint<ID>::bt(UINT32_MAX);
+barrett dynamic_modint<ID>::bt(INT_MAX);
 
 template<typename T>
 struct is_dynamic_modint : public false_type {
@@ -133,9 +135,10 @@ struct is_dynamic_modint<dynamic_modint<ID>> : public true_type {
 template<typename T>
 constexpr bool is_dynamic_modint_v = is_dynamic_modint<T>::value;
 
-template<typename mint> requires (is_dynamic_modint_v<mint>)
+template<typename mint>
+    requires (is_dynamic_modint_v<mint>)
 constexpr mint inv(mint x) {
-    return mint(inv(typename mint::value_type(x), mint::getm()));
+    return mint(inv(int(x), mint::getm()));
 }
 
 }  // namespace cplib

@@ -1,5 +1,5 @@
-#ifndef CPLIB_FENWICK_TREE_2D_HPP
-#define CPLIB_FENWICK_TREE_2D_HPP 1
+#ifndef CPLIB_FENWICK2D_HPP
+#define CPLIB_FENWICK2D_HPP 1
 
 #include <bits/stdc++.h>
 
@@ -13,13 +13,13 @@ using ld = long double;
 namespace cplib {
 
 template<typename T>
-struct fenwick_tree_2d {
+struct fenwick2d {
     int h;
     int w;
     vector<vector<T>> t;
-    fenwick_tree_2d() : fenwick_tree_2d(0, 0) {
+    fenwick2d() : fenwick2d(0, 0) {
     }
-    fenwick_tree_2d(int h, int w) : h(h), w(w), t(h, vector<T>(w)) {
+    fenwick2d(int h, int w) : h(h), w(w), t(h, vector<T>(w)) {
     }
     void add(int x, int y, T v) {
         assert(0 <= x && x < h);
@@ -52,4 +52,4 @@ struct fenwick_tree_2d {
 
 }  // namespace cplib
 
-#endif  // CPLIB_FENWICK_TREE_2D_HPP
+#endif  // CPLIB_FENWICK2D_HPP

@@ -5,7 +5,8 @@
 
 namespace cplib {
 
-template<typename mint> requires (is_static_modint_v<mint>)
+template<typename mint>
+    requires (is_static_modint_v<mint>)
 struct polynomial : public vector<mint> {
     using poly = polynomial;
     polynomial() : polynomial(1) {
@@ -21,7 +22,8 @@ struct polynomial : public vector<mint> {
     template<input_iterator It>
     polynomial(It first, It last) : vector<mint>(first, last) {
     }
-    template<typename F> requires (is_convertible_v<F, function<mint(int)>>)
+    template<typename F>
+        requires (is_convertible_v<F, function<mint(int)>>)
     polynomial(size_t n, F f) : vector<mint>(n) {
         for (size_t i = 0; i < n; ++i) {
             (*this)[i] = f(int(i));
@@ -130,14 +132,16 @@ template<typename T>
 struct is_polynomial : public false_type {
 };
 
-template<typename mint> requires (is_static_modint_v<mint>)
+template<typename mint>
+    requires (is_static_modint_v<mint>)
 struct is_polynomial<polynomial<mint>> : public true_type {
 };
 
 template<typename T>
 constexpr bool is_polynomial_v = is_polynomial<T>::value;
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly deriv(const poly &a) {
     if (a.size() == 1) {
         return poly{0};
@@ -149,7 +153,8 @@ poly deriv(const poly &a) {
     return c;
 }
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly integ(const poly &a) {
     poly c(a.size() + 1);
     for (size_t i = 0; i < a.size(); ++i) {
@@ -158,7 +163,8 @@ poly integ(const poly &a) {
     return c;
 }
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly inv(const poly &a) {
     assert(a[0] != 0);
     poly c = {1 / a[0]};
@@ -173,7 +179,8 @@ poly inv(const poly &a) {
     return c;
 }
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly sqrt(const poly &a) {
     assert(a[0] == 1);
     static const auto inv2 = inv(typename poly::value_type(2));
@@ -189,12 +196,14 @@ poly sqrt(const poly &a) {
     return c;
 }
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly log(const poly &a) {
     return integ(deriv(a) * inv(a)).trunc(a.size());
 }
 
-template<typename poly> requires (is_polynomial_v<poly>)
+template<typename poly>
+    requires (is_polynomial_v<poly>)
 poly exp(const poly &a) {
     assert(a[0] == 0);
     poly c = {1};

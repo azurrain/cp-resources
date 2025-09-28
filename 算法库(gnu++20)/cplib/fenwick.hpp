@@ -1,20 +1,20 @@
-#ifndef CPLIB_FENWICK_TREE_HPP
-#define CPLIB_FENWICK_TREE_HPP 1
+#ifndef CPLIB_FENWICK_HPP
+#define CPLIB_FENWICK_HPP 1
 
 #include "cplib/bit.hpp"
 
 namespace cplib {
 
 template<typename T>
-struct fenwick_tree {
+struct fenwick {
     int n;
     int f2_n;
     vector<T> t;
-    fenwick_tree() : fenwick_tree(0) {
+    fenwick() : fenwick(0) {
     }
-    explicit fenwick_tree(int n) : n(n), f2_n(floor2(n)), t(n) {
+    explicit fenwick(int n) : n(n), f2_n(floor2(n)), t(n) {
     }
-    explicit fenwick_tree(const vector<T> &a)
+    explicit fenwick(const vector<T> &a)
         : n(int(a.size())), f2_n(floor2(n)), t(n) {
         partial_sum(a.begin(), a.end(), t.begin());
         for (int i = n - 1; i != -1; --i) {
@@ -59,4 +59,4 @@ struct fenwick_tree {
 
 }  // namespace cplib
 
-#endif  // CPLIB_FENWICK_TREE_HPP
+#endif  // CPLIB_FENWICK_HPP

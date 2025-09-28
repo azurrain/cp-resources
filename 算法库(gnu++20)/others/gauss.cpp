@@ -1,18 +1,18 @@
-vector<double> gauss(vector<vector<double>> a, vector<double> b) {
-    constexpr double eps = 1e-9;
-    int n = a.size();
-    if (n == 0) {
-        return {};
-    }
+template<typename mint>
+    requires (is_modint_v<mint>)
+vector<mint> gauss(vector<vector<mint>> a, vector<mint> b) {
+    int n = int(a.size());
+    assert(n == int(a[0].size()));
+    assert(n == int(b.size()));
     for (int i = 0; i < n; ++i) {
-        int p = i;
-        for (int j = i + 1; j < n; ++j) {
-            if (fabs(a[p][i]) < fabs(a[j][i])) {
+        int p = -1;
+        for (int j = i; j < n; ++j) {
+            if (a[j][i] != 0) {
                 p = j;
+                break;
             }
         }
-        if (fabs(a[p][i]) < eps) {
-            // No solution
+        if (p == -1) {
             return {};
         }
         if (i != p) {

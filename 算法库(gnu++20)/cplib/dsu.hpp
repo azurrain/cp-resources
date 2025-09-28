@@ -47,6 +47,25 @@ struct dsu {
         assert(0 <= x && x < n);
         return -f[leader(x)];
     }
+    vector<vector<int>> groups() {
+        vector<int> buf(n);
+        vector<int> siz(n);
+        for (int i = 0; i < n; ++i) {
+            buf[i] = leader(i);
+            ++siz[buf[i]];
+        }
+        vector<vector<int>> res(n);
+        for (int i = 0; i < n; ++i) {
+            res[i].reserve(siz[i]);
+        }
+        for (int i = 0; i < n; ++i) {
+            res[buf[i]].push_back(i);
+        }
+        res.erase(remove_if(res.begin(), res.end(),
+                            [](const vector<int> &v) { return v.empty(); }),
+                  res.end());
+        return res;
+    }
 };
 
 }  // namespace cplib

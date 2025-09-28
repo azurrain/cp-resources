@@ -12,7 +12,8 @@ using ld = long double;
 
 namespace cplib {
 
-template<typename T, size_t N> requires (sizeof(T) * CHAR_BIT >= N)
+template<typename T, size_t N>
+    requires (sizeof(T) * CHAR_BIT >= N)
 struct basis : public array<T, N> {
     basis() : array<T, N>{} {
     }

@@ -1,30 +1,32 @@
 #ifndef CPLIB_STATIC_MODINT_HPP
 #define CPLIB_STATIC_MODINT_HPP 1
 
-#include "cplib/i128.hpp"
+#include "cplib/safe_mod.hpp"
 #include "cplib/inv.hpp"
 #include "cplib/modint_base.hpp"
 
 namespace cplib {
 
-template<integral T, T M> requires (M > 0)
+template<int M>
+    requires (M > 0)
 struct static_modint : public modint_base {
     using mint = static_modint;
-    using value_type = T;
-    static constexpr T getm() {
+    static constexpr int getm() {
         return M;
     }
     constexpr static_modint() : v(0) {
     }
-    template<typename U>
-    constexpr static_modint(U x)
-        : v(T(x % getm()) + (x < 0 ? getm() : 0)) {
+    template<signed_integral T>
+    constexpr static_modint(T x) : v(safe_mod(x, getm())) {
     }
-    constexpr static_modint(bool x) : v(T(x) % getm()) {
+    template<unsigned_integral T>
+    constexpr static_modint(T x) : v(int(x % getm())) {
     }
-    template<typename U>
-    explicit constexpr operator U() const {
-        return U(v);
+    constexpr static_modint(bool x) : v(int(x) % getm()) {
+    }
+    template<typename T>
+    explicit constexpr operator T() const {
+        return T(v);
     }
     constexpr mint operator+() const {
         return *this;
@@ -58,11 +60,7 @@ struct static_modint : public modint_base {
         return *this += -o;
     }
     constexpr mint &operator*=(mint o) {
-        if constexpr (2 * sizeof(T) <= sizeof(ull)) {
-            v = T(ull(v) * ull(o.v) % getm());
-        } else {
-            v = T(u128(v) * u128(o.v) % getm());
-        }
+        v = int(ll(v) * ll(o.v) % getm());
         return *this;
     }
     constexpr mint &operator/=(mint o) {
@@ -88,7 +86,7 @@ struct static_modint : public modint_base {
     }
     friend istream &operator>>(istream &is, mint &x) {
         is >> x.v;
-        x = mint(x.v);
+        x.v = safe_mod(x.v, getm());
         return is;
     }
     friend ostream &operator<<(ostream &os, mint x) {
@@ -96,23 +94,24 @@ struct static_modint : public modint_base {
     }
 
 private:
-    T v;
+    int v;
 };
 
 template<typename T>
 struct is_static_modint : public false_type {
 };
 
-template<integral T, T M>
-struct is_static_modint<static_modint<T, M>> : public true_type {
+template<int M>
+struct is_static_modint<static_modint<M>> : public true_type {
 };
 
 template<typename T>
 constexpr bool is_static_modint_v = is_static_modint<T>::value;
 
-template<typename mint> requires (is_static_modint_v<mint>)
+template<typename mint>
+    requires (is_static_modint_v<mint>)
 constexpr mint inv(mint x) {
-    return mint(inv(typename mint::value_type(x), mint::getm()));
+    return mint(inv(int(x), mint::getm()));
 }
 
 }  // namespace cplib
