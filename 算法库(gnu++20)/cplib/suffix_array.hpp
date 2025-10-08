@@ -59,7 +59,7 @@ vector<int> suffix_array(const Cont &s) {
         }
         rk.swap(tmp);
         tmp.clear();
-        fill(cnt.begin(), cnt.begin() + rk[sa[n - 1]] + 1, 0);
+        fill(cnt.begin(), cnt.end(), 0);
         m <<= 1;
     }
     return sa;
